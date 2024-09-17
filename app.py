@@ -6,7 +6,7 @@ app = Flask(__name__)
 
 # Define a function to get weather data using OpenWeatherMap API
 def get_weather_data(city, unit):
-    api_key = '9f08320ae171e1a95e777ad822ccda34'
+    api_key = 'Your API key'
     base_url = 'http://api.openweathermap.org/data/2.5/weather'
     params = {'q': city, 'appid': api_key, 'units': unit}
     response = requests.get(base_url, params=params)
@@ -16,7 +16,7 @@ def get_weather_data(city, unit):
 # Define a function to get temperature for a city using OpenWeatherMap API
 def get_temperature(city):
     # Fetch temperature for the city using OpenWeatherMap API
-    api_key = '9f08320ae171e1a95e777ad822ccda34'
+    api_key = 'Your API key'
     base_url = 'http://api.openweathermap.org/data/2.5/weather'
     params = {'q': city, 'appid': api_key, 'units': 'metric'}  # Use 'imperial' for Fahrenheit
     response = requests.get(base_url, params=params)
