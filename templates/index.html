@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Weather Forecast</title>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            function updateTemperature(cityId, cityName, temperature, unit) {
+                var unitSymbol = unit === 'imperial' ? 'F' : 'C';
+                var element = document.getElementById(cityId);
+                element.querySelector('.city-name').innerText = cityName;
+                element.querySelector('.temperature').innerText = temperature + "°" + unitSymbol;
+            }
+    
+            function updateTemperatures() {
+                var cityData = [
+                    { name: 'Chennai', id: 'city1' },
+                    { name: 'Mumbai', id: 'city2' },
+                    { name: 'Kolkata', id: 'city3' },
+                    { name: 'Delhi', id: 'city4' }
+                ];
+    
+                cityData.forEach(function (city) {
+                    fetch('/get_temperature/' + city.name)
+                        .then(response => response.json())
+                        .then(data => updateTemperature(city.id, city.name, data.temperature));
+                });
+            }
+    
+            // Update temperatures on page load
+            updateTemperatures();
+    
+            // Optionally, update temperatures every N seconds
+            setInterval(updateTemperatures, 60000); // Update every 60 seconds (adjust as needed)
+        });
+    </script>
+    <script>
+        // Function to zip two lists
+        function zip(a, b) {
+            var result = [];
+            for (var i = 0; i < Math.min(a.length, b.length); i++) {
+                result.push([a[i], b[i]]);
+            }
+            return result;
+        }
+    
+        document.addEventListener('DOMContentLoaded', function () {
+            function updateTemperature(cityId, temperature, unit) {
+                var unitSymbol = unit === 'imperial' ? 'F' : 'C';
+                document.getElementById(cityId).innerText = temperature + "°" + unitSymbol;
+            }
+    
+            function updateTemperatures() {
+                var cityNames = {{ city_names|tojson }};
+                var tempIds = {{ ['temp1', 'temp2', 'temp3', 'temp4']|tojson }};
+                var zipped = zip(cityNames, tempIds);
+    
+                zipped.forEach(function (item) {
+                    var city = item[0];
+                    var tempId = item[1];
+    
+                    fetch('/get_temperature/' + city)
+                        .then(response => response.json())
+                        .then(data => updateTemperature(tempId, data.temperature));
+                });
+            }
+    
+            // Update temperatures on page load
+            updateTemperatures();
+    
+            // Optionally, update temperatures every N seconds
+            setInterval(updateTemperatures, 60000); // Update every 60 seconds (adjust as needed)
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Weather Forecast</h1>
+        <form method="post">
+            <label for="city">Enter City:</label>
+            <input type="text" id="city" name="city" required>
+            <label for="unit">Select Unit:</label>
+            <select id="unit" name="unit" required>
+                <option value="metric">Celsius</option>
+                <option value="imperial">Fahrenheit</option>
+            </select>
+            <button type="submit">Get Weather</button>
+        </form>
+        {% if weather_data %}
+            {% if 'main' in weather_data %}
+                <div class="weather-info show">
+                    <p>City: {{ weather_data['name'] }}</p>
+                    <p>Temperature: {{ weather_data['main']['temp'] }}°{% if weather_data['unit'] == 'metric' %}F{% else %}C{% endif %}</p>
+                    <p>Description: {{ weather_data['weather'][0]['description'] }}</p>
+                </div>
+            {% else %}
+                <p>Error retrieving weather data. Please try again.</p>
+            {% endif %}
+        {% endif %}
+
+    </div>
+    <div class="city-temperature" id="city1">
+        <h3 class="city-name">Chennai</h3>
+        <p class="temperature">Loading...</p>
+    </div>
+    <div class="city-temperature" id="city2">
+        <h3 class="city-name">Mumbai</h3>
+        <p class="temperature">Loading...</p>
+    </div>
+    <div class="city-temperature" id="city3">
+        <h3 class="city-name">Kolkata</h3>
+        <p class="temperature">Loading...</p>
+    </div>
+    <div class="city-temperature" id="city4">
+        <h3 class="city-name">Delhi</h3>
+        <p class="temperature">Loading...</p>
+    </div>
+    </div>
+</body>
+</html>
